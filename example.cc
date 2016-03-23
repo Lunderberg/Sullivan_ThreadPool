@@ -2,6 +2,7 @@
 #include "ThreadPool.hh"
 #include "Timer.hh"
 
+#include <cstdlib>
 #include <iostream>
 
 
@@ -12,13 +13,25 @@ void scale(int i, double* a, double* b) {
         a[i]=4*b[i];
 }
 
-int main () {
+int main (int argc, char** argv) {
 
         ThreadPool pool(8);
 
-        int N = 1e9;
+        int N = 1e8;
+        if(argc > 1) {
+          N = std::atof(argv[1]);
+        }
+
         auto a = (double*)calloc(N,sizeof(double));
         auto b = (double*)calloc(N,sizeof(double));
+
+        if(a==0 || b==0) {
+          std::cerr << "Could not allocate "
+                    << 2*N*sizeof(double)/(1024*1024) << " MB.\n"
+                    << "Buy more RAM or decrease N" << std::endl;
+          return 1;
+        }
+
         for (int i=0; i<N; i++) { b[i] = i; }
 
 
